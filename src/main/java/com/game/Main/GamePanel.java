@@ -36,7 +36,7 @@ public class GamePanel extends JPanel
     // Default Constructor - set panel for game window
     public GamePanel() {
         super();
-        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
         setFocusable(true);
         requestFocus();
     }
@@ -58,7 +58,7 @@ public class GamePanel extends JPanel
     // initialize the image, graphics and gameStateManager
     private void init() {
         image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-        g = (Graphics2D) g;
+        g = (Graphics2D) image.getGraphics();
         running = true;
         gsm = new GameStateManager();
     }
@@ -91,6 +91,11 @@ public class GamePanel extends JPanel
             // remaining time for targetTime to complete
             wait = targetTime - elapsed / 1000000;
 
+            // SO WAIT DO NOT GO -VE
+            // AT -VE IT SHOW ERROR
+            if (wait < 0) wait = 5;
+
+
             // Make the Thread to sleep for remaining time
             // if problem occur then give error message
             try {
@@ -109,9 +114,12 @@ public class GamePanel extends JPanel
     private void draw() {
         gsm.draw(g);
     }
+
+
+    // DRAW THE GRAPHICS OF SCREEN
     private void drawToScreen() {
         Graphics g2 = getGraphics();
-        g2.drawImage(image, 0, 0, null);
+        g2.drawImage(image, 0, 0, WIDTH * SCALE, HEIGHT * SCALE, null);
         g2.dispose();
 
     }

@@ -11,9 +11,9 @@ public class Game {
         var window = new JFrame("Dragon Tale");
         window.setContentPane(new GamePanel());
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setLocationRelativeTo(null);
         window.setResizable(false);
         window.pack();
+        window.setLocationRelativeTo(null);
         window.setVisible(true);
     }
 }

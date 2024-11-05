@@ -1,5 +1,7 @@
 package com.game.TileMap;
 
+import com.game.Main.GamePanel;
+
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -31,10 +33,11 @@ public class Background {
     }
 
 
-    // SET POSITION
+    // SET POSITION OF X & Y -
+    // TO MAKE IT STEAM MOVEABLE
     public void setPosition(double x, double y) {
-        this.x = x;
-        this.y = y;
+        this.x = (x * moveScale) % GamePanel.WIDTH;
+        this.y = (y * moveScale) % GamePanel.WIDTH;
     }
 
 
@@ -53,5 +56,17 @@ public class Background {
 
     public void draw(java.awt.Graphics2D g) {
         g.drawImage(image, (int)x, (int)y, null);
+
+        // ADD WIDTH OF PANEL IN X -
+        // WHEN X IS -VE
+        if (x < 0) {
+            g.drawImage(image, (int) x + GamePanel.WIDTH, (int) y, null);
+        }
+
+        // REMOVE EXTRA WIDTH OF X -
+        // WHEN X IS +VE
+        if (x > 0) {
+            g.drawImage(image, (int) x - GamePanel.WIDTH, (int) y, null);
+        }
     }
 }
