@@ -87,6 +87,7 @@ public class MenuState extends GameState{
 
             // START
             case 0 :
+                gsm.setState(GameStateManager.LEVEL_1_STATE);
                 break;
 
             // HELP

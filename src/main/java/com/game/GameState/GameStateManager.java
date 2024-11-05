@@ -21,6 +21,7 @@ public class GameStateManager {
 
         currentState = MENUSTATE;
         gameStates.add(new MenuState(this));
+        gameStates.add(new Level_1_State(this));
     }
 
 
