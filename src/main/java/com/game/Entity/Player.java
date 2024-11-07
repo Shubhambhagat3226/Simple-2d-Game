@@ -16,7 +16,7 @@ public class Player extends MapObject{
     private int maxFire;
     private boolean dead;
     private boolean flinching;
-    private long flinchTime;
+    private long flinchTimer;
 
     // FIREBALL
     private boolean firing;
@@ -51,6 +51,7 @@ public class Player extends MapObject{
         super(tileMap);
 
         width = 30;
+        height = 30;
         health = 30;
         cwidth = 20;
         cheight = 20;
@@ -77,14 +78,14 @@ public class Player extends MapObject{
 
         // LOAD SPIRITS
         try {
-            BufferedImage spiritSheets = ImageIO.read(getClass()
-                    .getResourceAsStream("/Sprites/Player/playersprites.gif"));
+            BufferedImage spiritSheets = ImageIO.read(getClass().getResourceAsStream("/Sprites/Player/playersprites.gif"));
 
-            for (int i = 0; i < numFrames.length; i++) {
+            spirits = new ArrayList<BufferedImage[]>();
+            for (int i = 0; i < 7; i++) {
                 BufferedImage[] bi = new BufferedImage[numFrames[i]];
 
                 for (int j = 0; j < numFrames[i]; j++) {
-                    if (i != numFrames.length - 1) {
+                    if (i != 6) {
                         bi[j] = spiritSheets
                                 .getSubimage(j * width
                                         , i * height
@@ -97,7 +98,6 @@ public class Player extends MapObject{
                     }
 
                 }
-
                 spirits.add(bi);
             }
         }
@@ -105,13 +105,16 @@ public class Player extends MapObject{
             e.printStackTrace();
         }
 
+        // ANIMATION INIT
+        animation = new Animation();
+        currentAction = IDLE;
+        animation.setFrames(spirits.getFirst());
+        animation.setDelay(400);
 
     }
 
 
     // GETTER METHOD
-
-
     public int getHealth() {
         return health;
     }
@@ -140,6 +143,64 @@ public class Player extends MapObject{
 
     public void setGliding(boolean b) {
         gliding = b;
+    }
+
+
+    // POSITION AND SPEED CONTROL
+    private void getNextPosition() {
+
+        // LEFT SIDE
+        if (left) {
+            dx -= moveSpeed;
+            if (dx < -maxSpeed) {
+                dx = -maxSpeed;
+            }
+        }
+        // RIGHT SIDE
+        else if (right) {
+            dx += moveSpeed;
+            if (dx > maxSpeed) {
+                dx = maxSpeed;
+            }
+        }
+        // NO SIDE
+        else {
+            if (dx > 0) {
+                dx -= stopSpeed;
+                if (dx < 0) {
+                    dx = 0;
+                }
+            } else if (dx < 0) {
+                dx += stopSpeed;
+                if (dx > 0) {
+                    dx = 0;
+                }
+            }
+        }
+
+        // CANNOT MOVE WHILE ATTACKING, EXCEPT IN AIR
+        if ((currentAction == SCRATCHING || currentAction == FIREBALL) && !(jumping || falling)) {
+            dx = 0;
+        }
+
+        // JUMPING
+        if (jumping && !falling) {
+            dy = jumpStart;
+            falling = true;
+        }
+
+        // FALLING
+        if (falling) {
+            if (dy > 0 && gliding) dy += fallSpeed * 0.1;
+            else dy += fallSpeed;
+
+            if (dy > 0) jumping = false;
+            if (dy < 0 && !jumping) dy += stopJumpSpeed;
+
+            if (dy > maxFallSpeed) dy = maxFallSpeed;
+
+        }
+
     }
 
 
@@ -243,11 +304,28 @@ public class Player extends MapObject{
         setMapPosition();
 
         // DRAW pLAYER
+        // FLINCHING
         if (flinching) {
-            long elapsed = (System.nanoTime() - flinchTime)/ 1000000;
+            long elapsed = (System.nanoTime() - flinchTimer)/ 1000000;
             if (elapsed/100 % 2 == 0) return;
         }
 
+        // FACE AT RIGHT SIDE
+        if (facingRight) {
+            g.drawImage(animation.getImage()
+                    , (int) (x + xmap - width/2)
+                    , (int) (y + ymap - height/2)
+                    , null);
+        }
+        // FACE AT LEFT SIDE
+        else {
+            g.drawImage(animation.getImage()
+                    , (int) (x + xmap - width/2 + width)
+                    , (int) (y + ymap - height/2)
+                    , -width
+                    , height
+                    , null);
+        }
     }
 
 

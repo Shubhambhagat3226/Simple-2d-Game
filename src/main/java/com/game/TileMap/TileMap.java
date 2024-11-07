@@ -50,7 +50,7 @@ public class TileMap {
         this.tileSize = tileSize;
         numColsToDraw = GamePanel.WIDTH / tileSize + 2;
         numRowsToDraw = GamePanel.HEIGHT/ tileSize + 2;
-        tween = 0.07;
+        tween = 1;
     }
 
 
@@ -93,6 +93,12 @@ public class TileMap {
             map = new int[numRows][numCols];
             width = numCols * tileSize;
             height = numRows * tileSize;
+
+
+            xmin = GamePanel.WIDTH - width;
+            xmax = 0;
+            ymin = GamePanel.HEIGHT - height;
+            ymax = 0;
 
             String delims = "\\s+";
             for (int row = 0; row < numRows; row++) {
@@ -146,6 +152,8 @@ public class TileMap {
         this.x += (x - this.x) * tween;
         this.y += (y - this.y) * tween;
 
+        System.out.println(this.x);
+
         fixBounds();
 
         colOffSet = (int) -this.x / tileSize;
@@ -159,6 +167,11 @@ public class TileMap {
         if (y > ymax) y = ymax;
     }
 
+
+    // SET TWEEN
+    public void setTween(double tween) {
+        this.tween = tween;
+    }
 
     // DRAW TILE GRAPHICS
     public void draw(Graphics2D g) {
