@@ -6,6 +6,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.IllegalFormatCodePointException;
+import java.util.MissingFormatArgumentException;
 
 public class Player extends MapObject{
 
@@ -22,7 +24,7 @@ public class Player extends MapObject{
     private boolean firing;
     private int fireCost;
     private int fireBallDamage;
-    //private ArrayList<FireBall> fireBalls;
+    private ArrayList<FireBall> fireBalls;
 
     // SCRATCH
     private boolean scratching;
@@ -71,7 +73,7 @@ public class Player extends MapObject{
 
         fireCost = 200;
         fireBallDamage = 5;
-        //fireBalls = new ArrayList<FireBall>();
+        fireBalls = new ArrayList<FireBall>();
 
         scratchDamage = 8;
         scratchRange = 40;
@@ -94,7 +96,7 @@ public class Player extends MapObject{
                         bi[j] = spiritSheets
                                 .getSubimage(j * width * 2
                                         , i * height
-                                        , width, height);
+                                        , width * 2, height);
                     }
 
                 }
@@ -212,6 +214,37 @@ public class Player extends MapObject{
         checkTileMapCollision();
         setPosition(xtemp, ytemp);
 
+        // CHECK ATTACK IS STOP
+        if (currentAction == SCRATCHING) {
+            if (animation.hasPlayedOnce()) scratching = false;
+        }
+        if (currentAction == FIREBALL) {
+            if (animation.hasPlayedOnce()) firing = false;
+        }
+
+
+        // FIREBALL ATTACK
+        fire += 1;
+        if (fire > maxFire) fire = maxFire;
+        if (firing && currentAction != FIREBALL) {
+            if (fire > fireCost) {
+                fire -= fireCost;
+                FireBall fb = new FireBall(tileMap, facingRight);
+                fb.setPosition(x, y);
+
+                fireBalls.add(fb);
+            }
+        }
+
+        // UPDATE FIREBALL
+        for (int i = 0; i < fireBalls.size(); i++) {
+            fireBalls.get(i).update();
+            if (fireBalls.get(i).shouldRemove()) {
+                fireBalls.remove(i);
+                i--;
+            }
+        }
+
 
         // SET ANIMATIONS
         // SCRATCHING ATTACK STATE
@@ -302,6 +335,11 @@ public class Player extends MapObject{
     public void draw(Graphics2D g) {
 
         setMapPosition();
+
+        // DRAW FIREBALL
+        for (int i = 0; i < fireBalls.size(); i++) {
+            fireBalls.get(i).draw(g);
+        }
 
         // DRAW pLAYER
         // FLINCHING
